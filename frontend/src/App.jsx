@@ -1,47 +1,50 @@
+// src/App.jsx
 import React, { useEffect, useState } from 'react';
 import {
   createPersonWithDocument,
   getReportUsers,
   getReportDepartamental,
+  getDocumentTypes,
 } from './api';
 import './App.css';
 
 function App() {
   const [form, setForm] = useState({
-  identity_number: '',
-  first_name: '',
-  last_name: '',
-  sex: 'MASCULINO',
-  document_type_id: '',
-  document_number: '',
-});
+    identity_number: '',
+    first_name: '',
+    last_name: '',
+    sex: 'MASCULINO',
+    document_type_id: '',
+    document_number: '',
+  });
 
+  const [docTypes, setDocTypes] = useState([]);
   const [reportUsers, setReportUsers] = useState([]);
   const [reportDept, setReportDept] = useState([]);
   const [loadingReports, setLoadingReports] = useState(false);
 
   const handleChange = (e) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await createPersonWithDocument(form);
-      alert('Persona registrada');
+      alert('Persona registrada correctamente');
+      setForm((prev) => ({
+        ...prev,
+        identity_number: '',
+        first_name: '',
+        last_name: '',
+        document_number: '',
+      }));
       loadReports();
     } catch (err) {
       console.error(err);
-      alert('Error registrando persona');
+      alert('Error registrando persona (revisa consola/backend)');
     }
   };
-  const [docTypes, setDocTypes] = useState([]);
-
-  useEffect(() => {
-    loadReports();
-    getDocumentTypes().then(setDocTypes).catch(console.error);
-  }, []);
-
 
   const loadReports = async () => {
     setLoadingReports(true);
@@ -60,20 +63,31 @@ function App() {
     }
   };
 
+  const loadDocumentTypes = async () => {
+    try {
+      const types = await getDocumentTypes();
+      setDocTypes(types);
+    } catch (err) {
+      console.error(err);
+      alert('Error cargando tipos de documento');
+    }
+  };
+
   useEffect(() => {
     loadReports();
+    loadDocumentTypes();
   }, []);
 
   return (
     <div className="app">
-      <h1>Reto Registraduría – Caicedonia</h1>
+      <h1>Reto Registraduría – Sistema de Personas</h1>
 
       <section className="card">
-        <h2>Registro de persona (demo)</h2>
+        <h2>Registro de persona</h2>
         <form onSubmit={handleSubmit} className="form">
           <input
             name="identity_number"
-            placeholder="Número de identidad"
+            placeholder="Número de identidad (único)"
             value={form.identity_number}
             onChange={handleChange}
             required
@@ -104,16 +118,18 @@ function App() {
             <option value="FEMENINO">Femenino</option>
           </select>
 
-          {/* ESTE ES EL CAMBIO IMPORTANTE */}
           <select
             name="document_type_id"
             value={form.document_type_id}
             onChange={handleChange}
             required
           >
-            <option value="">Selecciona tipo de documento</option>
-            <option value="TU_UUID_1_AQUI">Cédula de Ciudadanía</option>
-            <option value="TU_UUID_2_AQUI">Pasaporte</option>
+            <option value="">Tipo de documento</option>
+            {docTypes.map((dt) => (
+              <option key={dt.id} value={dt.id}>
+                {dt.name}
+              </option>
+            ))}
           </select>
 
           <input
@@ -126,7 +142,6 @@ function App() {
 
           <button type="submit">Registrar persona</button>
         </form>
-
       </section>
 
       <section className="card">
