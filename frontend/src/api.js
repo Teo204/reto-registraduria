@@ -21,3 +21,9 @@ export async function getReportDepartamental() {
   if (!res.ok) throw new Error('Error obteniendo reporte departamental');
   return res.json();
 }
+
+export async function getDocumentTypes() {
+  const res = await fetch(`${API_URL}/document-types`);
+  if (!res.ok) throw new Error('Error obteniendo tipos de documento');
+  return res.json();
+}

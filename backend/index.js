@@ -82,6 +82,20 @@ app.post('/api/persons', async (req, res) => {
     res.status(500).json({ message: 'Error creando persona', error: err.message });
   }
 });
+app.get('/api/document-types', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('document_types')
+      .select('id, name')
+      .order('name');
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error obteniendo tipos de documento' });
+  }
+});
 
 /**
  * Reporte 1: país, ciudad residencia, nombre persona, tipo doc, número doc

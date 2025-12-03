@@ -8,13 +8,14 @@ import './App.css';
 
 function App() {
   const [form, setForm] = useState({
-    identity_number: '',
-    first_name: '',
-    last_name: '',
-    sex: 'MASCULINO',
-    document_type_id: '',
-    document_number: '',
-  });
+  identity_number: '',
+  first_name: '',
+  last_name: '',
+  sex: 'MASCULINO',
+  document_type_id: '',
+  document_number: '',
+});
+
   const [reportUsers, setReportUsers] = useState([]);
   const [reportDept, setReportDept] = useState([]);
   const [loadingReports, setLoadingReports] = useState(false);
@@ -34,6 +35,13 @@ function App() {
       alert('Error registrando persona');
     }
   };
+  const [docTypes, setDocTypes] = useState([]);
+
+  useEffect(() => {
+    loadReports();
+    getDocumentTypes().then(setDocTypes).catch(console.error);
+  }, []);
+
 
   const loadReports = async () => {
     setLoadingReports(true);
@@ -65,11 +73,12 @@ function App() {
         <form onSubmit={handleSubmit} className="form">
           <input
             name="identity_number"
-            placeholder="Número de identidad (único)"
+            placeholder="Número de identidad"
             value={form.identity_number}
             onChange={handleChange}
             required
           />
+
           <input
             name="first_name"
             placeholder="Nombres"
@@ -77,6 +86,7 @@ function App() {
             onChange={handleChange}
             required
           />
+
           <input
             name="last_name"
             placeholder="Apellidos"
@@ -84,6 +94,7 @@ function App() {
             onChange={handleChange}
             required
           />
+
           <select
             name="sex"
             value={form.sex}
@@ -93,13 +104,18 @@ function App() {
             <option value="FEMENINO">Femenino</option>
           </select>
 
-          <input
+          {/* ESTE ES EL CAMBIO IMPORTANTE */}
+          <select
             name="document_type_id"
-            placeholder="ID tipo documento (desde Supabase)"
             value={form.document_type_id}
             onChange={handleChange}
             required
-          />
+          >
+            <option value="">Selecciona tipo de documento</option>
+            <option value="TU_UUID_1_AQUI">Cédula de Ciudadanía</option>
+            <option value="TU_UUID_2_AQUI">Pasaporte</option>
+          </select>
+
           <input
             name="document_number"
             placeholder="Número del documento"
@@ -110,6 +126,7 @@ function App() {
 
           <button type="submit">Registrar persona</button>
         </form>
+
       </section>
 
       <section className="card">
